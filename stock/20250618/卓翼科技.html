@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>卓翼科技 (002369) 交互式交易分析仪表盘</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Harmony (Slate, Stone, with Red/Green accents) -->
+    <!-- Application Structure Plan: A top-down narrative dashboard. It starts with the main thesis (Hero section with countdown), moves to the core conflict (Hope vs. Risk dualism), then dives into interactive data visualization (Market Pulse charts), analyzes capital flows (Capital Footprint), and concludes with actionable strategies (Tactical Playbook). This structure was chosen to guide a user from a high-level strategic understanding to detailed, tactical insights, making the complex report content digestible and engaging for a trader. -->
+    <!-- Visualization & Content Choices: 
+        1. Countdown (JS): Goal=Inform/Engage. Emphasizes the key event driving speculation.
+        2. Key Metrics Cards (HTML/Tailwind): Goal=Inform. Provides quick, at-a-glance stats.
+        3. Price/Volume Charts (Chart.js): Goal=Analyze Change/Relationships. Interaction=Toggle support/resistance. Justification=Allows dynamic exploration of price action and its relationship with volume, which is key to the report's analysis.
+        4. Dragon & Tiger List Chart (Chart.js): Goal=Compare/Organize. Interaction=Select date to update chart. Justification=Visually simplifies the complex fund flow data from the report's Table 2, making it easier to grasp the conflict between institutional and hot money.
+        5. Tactical Playbook Tabs (JS/HTML): Goal=Organize/Inform. Interaction=Click tabs. Justification=Breaks down the report's dense strategic advice (Table 4) into clear, actionable, and easily navigable steps.
+        6. All textual content is adapted from the source report to provide context for each section and visualization. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body { font-family: 'Noto Sans SC', sans-serif; }
+        .chart-container { position: relative; width: 100%; max-width: 800px; margin: auto; height: 320px; max-height: 40vh; }
+        @media (min-width: 768px) { .chart-container { height: 400px; } }
+        .tab-active { border-color: #4f46e5; color: #4f46e5; background-color: #eef2ff; }
+        .tab-inactive { border-color: transparent; color: #6b7280; }
+        .content-active { display: block; }
+        .content-inactive { display: none; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <nav class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <span class="font-bold text-xl text-slate-700">卓翼科技 (002369)</span>
+                    <span class="ml-3 text-sm font-medium text-slate-500">交易策略仪表盘</span>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#hero" class="text-slate-600 hover:bg-slate-100 hover:text-slate-900 px-3 py-2 rounded-md text-sm font-medium">核心摘要</a>
+                        <a href="#pulse" class="text-slate-600 hover:bg-slate-100 hover:text-slate-900 px-3 py-2 rounded-md text-sm font-medium">市场脉搏</a>
+                        <a href="#capital" class="text-slate-600 hover:bg-slate-100 hover:text-slate-900 px-3 py-2 rounded-md text-sm font-medium">资本足迹</a>
+                        <a href="#playbook" class="text-slate-600 hover:bg-slate-100 hover:text-slate-900 px-3 py-2 rounded-md text-sm font-medium">交易剧本</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        
+        <section id="hero" class="text-center mb-16">
+            <h1 class="text-4xl md:text-5xl font-bold text-indigo-600 tracking-tight">司法拍卖驱动下的高风险博弈</h1>
+            <p class="mt-4 max-w-3xl mx-auto text-lg text-slate-600">卓翼科技股价已脱离基本面，其核心驱动力源于对控股权变更的投机性预期。本仪表盘旨在解构其交易规律，揭示机遇与风险。</p>
+            <div class="mt-8 bg-white p-6 rounded-2xl shadow-lg inline-block border border-indigo-100">
+                <p class="text-sm font-semibold text-slate-500">距控股权司法拍卖开始 (2025-06-25)</p>
+                <div id="countdown" class="text-4xl font-bold text-indigo-700 tracking-wider mt-2">
+                    <span id="days"></span> 天 <span id="hours"></span> 小时 <span id="minutes"></span> 分 <span id="seconds"></span> 秒
+                </div>
+            </div>
+        </section>
+
+        <section id="conflict" class="mb-16">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold text-slate-900">核心矛盾：希望与风险的对决</h2>
+                <p class="mt-2 text-slate-500">当前股价由两大对立逻辑主导。一方面是“新主入驻”带来的重组希望，另一方面是公司自身脆弱的基本面构成的巨大风险。</p>
+            </div>
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="bg-green-50 border-2 border-dashed border-green-300 rounded-2xl p-6 text-center transition hover:shadow-xl hover:border-green-400">
+                    <h3 class="text-2xl font-bold text-green-800">📈 重组希望</h3>
+                    <p class="mt-2 text-green-700">市场预期实力雄厚的资本（如产业资本或国资）接盘，可能带来优质资产注入、改善公司治理，引发价值重估。</p>
+                    <div class="mt-4 bg-white p-4 rounded-lg">
+                        <p class="text-sm text-slate-500">核心驱动事件</p>
+                        <p class="text-lg font-semibold text-green-900">12.48% 股权司法拍卖</p>
+                    </div>
+                </div>
+                <div class="bg-red-50 border-2 border-dashed border-red-300 rounded-2xl p-6 text-center transition hover:shadow-xl hover:border-red-400">
+                    <h3 class="text-2xl font-bold text-red-800">📉 基本面悬崖</h3>
+                    <p class="mt-2 text-red-700">公司持续亏损，财务杠杆极高。一旦重组预期落空，股价缺乏价值支撑，面临“价值回归”的巨大风险。</p>
+                    <div class="mt-4 grid grid-cols-2 gap-2">
+                        <div class="bg-white p-3 rounded-lg">
+                             <p class="text-sm text-slate-500">Q1净利润</p>
+                            <p class="text-lg font-semibold text-red-900">-3215万</p>
+                        </div>
+                        <div class="bg-white p-3 rounded-lg">
+                            <p class="text-sm text-slate-500">资产负债率</p>
+                            <p class="text-lg font-semibold text-red-900">82.66%</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="pulse" class="bg-white p-6 md:p-8 rounded-2xl shadow-lg mb-16 border">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold text-slate-900">市场脉搏</h2>
+                <p class="mt-2 text-slate-500">通过互动图表探索卓翼科技近期的价格走势、成交量和关键技术位。高波动性和高换手率是其最显著的特征。</p>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center mb-8">
+                <div class="bg-slate-100 p-4 rounded-lg">
+                    <p class="text-sm text-slate-500">日均振幅</p>
+                    <p class="text-2xl font-bold text-indigo-600">~3-5%</p>
+                </div>
+                <div class="bg-slate-100 p-4 rounded-lg">
+                    <p class="text-sm text-slate-500">日均换手率</p>
+                    <p class="text-2xl font-bold text-indigo-600">>5%</p>
+                </div>
+                <div class="bg-slate-100 p-4 rounded-lg">
+                    <p class="text-sm text-slate-500">关键支撑</p>
+                    <p class="text-2xl font-bold text-green-600">8.70</p>
+                </div>
+                <div class="bg-slate-100 p-4 rounded-lg">
+                    <p class="text-sm text-slate-500">关键阻力</p>
+                    <p class="text-2xl font-bold text-red-600">9.10</p>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <canvas id="priceChart"></canvas>
+            </div>
+             <div class="text-center my-4">
+                <button id="toggleSupport" class="bg-green-100 text-green-800 text-sm font-medium mr-2 px-3 py-1.5 rounded-full">显示/隐藏 支撑位</button>
+                <button id="toggleResistance" class="bg-red-100 text-red-800 text-sm font-medium px-3 py-1.5 rounded-full">显示/隐藏 阻力位</button>
+            </div>
+        </section>
+        
+        <section id="capital" class="bg-white p-6 md:p-8 rounded-2xl shadow-lg mb-16 border">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold text-slate-900">资本足迹</h2>
+                <p class="mt-2 text-slate-500">股价的波动是资金博弈的直接结果。通过解码龙虎榜和融资数据，洞悉机构、游资等不同力量的意图与动向。</p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h3 class="font-bold text-xl mb-2 text-center">龙虎榜资金博弈</h3>
+                    <p class="text-sm text-slate-500 text-center mb-4">选择日期，观察机构与游资的净买入情况，揭示主力资金的分歧与共识。</p>
+                    <div class="flex justify-center space-x-2 mb-4">
+                        <button class="lhb-date-btn bg-indigo-100 text-indigo-800 text-sm font-medium px-3 py-1.5 rounded-full" data-date="2025-02-21">02-21</button>
+                        <button class="lhb-date-btn bg-indigo-100 text-indigo-800 text-sm font-medium px-3 py-1.5 rounded-full" data-date="2025-02-25">02-25</button>
+                        <button class="lhb-date-btn bg-indigo-100 text-indigo-800 text-sm font-medium px-3 py-1.5 rounded-full" data-date="2025-02-26">02-26</button>
+                    </div>
+                    <div class="chart-container h-64 md:h-80">
+                         <canvas id="lhbChart"></canvas>
+                    </div>
+                </div>
+                <div>
+                     <h3 class="font-bold text-xl mb-2 text-center">融资余额趋势</h3>
+                     <p class="text-sm text-slate-500 text-center mb-4">融资余额（杠杆资金）的变化反映了市场情绪。近期净偿还表明部分杠杆投资者正在离场。</p>
+                    <div class="chart-container h-64 md:h-80">
+                        <canvas id="rzChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="playbook">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold text-slate-900">T+0 交易剧本</h2>
+                <p class="mt-2 text-slate-500">基于报告分析，我们为经验丰富的交易者提供一个纪律严明的日内操作框架。请注意，以下策略风险极高。</p>
+            </div>
+            <div class="max-w-4xl mx-auto">
+                <div class="border-b border-gray-200">
+                    <nav class="-mb-px flex space-x-4" aria-label="Tabs">
+                        <button id="tab-btn-1" class="tab-btn tab-active whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">📈 VWAP回调做多</button>
+                        <button id="tab-btn-2" class="tab-btn tab-inactive whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">🚀 突破追多</button>
+                        <button id="tab-btn-3" class="tab-btn tab-inactive whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">📉 阻力位做空</button>
+                        <button id="tab-btn-4" class="tab-btn tab-inactive whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">⚡ 破位追空</button>
+                    </nav>
+                </div>
+                <div class="py-6">
+                    <div id="tab-content-1" class="tab-content content-active">
+                        <div class="bg-green-50 rounded-lg p-6">
+                            <h4 class="font-bold text-lg text-green-800">入场信号</h4>
+                            <p class="mt-1 text-green-700">股价在VWAP（成交量加权平均价）上方运行，缩量回调至VWAP附近，获得支撑并出现买盘信号。</p>
+                            <h4 class="font-bold text-lg text-green-800 mt-4">盈利目标</h4>
+                            <p class="mt-1 text-green-700">基于日均振幅的30-50% (约1.5%-2.5%)，或下一个可见的卖盘阻力位。</p>
+                            <h4 class="font-bold text-lg text-red-800 mt-4">止损原则</h4>
+                            <p class="mt-1 text-red-700">跌破VWAP或入场支撑点下方0.5%-1%。</p>
+                        </div>
+                    </div>
+                    <div id="tab-content-2" class="tab-content content-inactive">
+                         <div class="bg-green-50 rounded-lg p-6">
+                            <h4 class="font-bold text-lg text-green-800">入场信号</h4>
+                            <p class="mt-1 text-green-700">股价放量（成交量显著高于盘中均值）突破早盘高点或关键整数位。</p>
+                            <h4 class="font-bold text-lg text-green-800 mt-4">盈利目标</h4>
+                            <p class="mt-1 text-green-700">突破后上涨1.5%-2.5%，或出现上涨动能衰竭迹象。</p>
+                            <h4 class="font-bold text-lg text-red-800 mt-4">止损原则</h4>
+                            <p class="mt-1 text-red-700">跌破突破前的平台整理区。</p>
+                        </div>
+                    </div>
+                    <div id="tab-content-3" class="tab-content content-inactive">
+                        <div class="bg-red-50 rounded-lg p-6">
+                            <h4 class="font-bold text-lg text-red-800">入场信号</h4>
+                            <p class="mt-1 text-red-700">股价上涨至历史关键阻力位，出现量价背离（价涨量缩）或滞涨信号。</p>
+                            <h4 class="font-bold text-lg text-green-800 mt-4">盈利目标</h4>
+                            <p class="mt-1 text-green-700">回调至日内VWAP附近。</p>
+                            <h4 class="font-bold text-lg text-red-800 mt-4">止损原则</h4>
+                            <p class="mt-1 text-red-700">向上突破阻力位0.5%-1%。</p>
+                        </div>
+                    </div>
+                    <div id="tab-content-4" class="tab-content content-inactive">
+                         <div class="bg-red-50 rounded-lg p-6">
+                            <h4 class="font-bold text-lg text-red-800">入场信号</h4>
+                            <p class="mt-1 text-red-700">股价放量跌破VWAP或早盘低点。</p>
+                            <h4 class="font-bold text-lg text-green-800 mt-4">盈利目标</h4>
+                            <p class="mt-1 text-green-700">下探至下一个历史支撑位，或达到日均振幅的下跌目标。</p>
+                            <h4 class="font-bold text-lg text-red-800 mt-4">止损原则</h4>
+                            <p class="mt-1 text-red-700">反弹收复VWAP或破位点。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-800 text-slate-300 mt-16">
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 text-center">
+            <p class="font-semibold text-white">⚠️ 风险提示</p>
+            <p class="text-sm mt-2">本应用内容基于公开报告分析，仅供参考，不构成任何投资建议。卓翼科技为高风险投机标的，交易可能导致重大亏损。投资者应独立判断，自主决策，自担风险。</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            
+            const auctionDate = new Date('2025-06-25T09:30:00+08:00').getTime();
+            const countdownElement = document.getElementById('countdown');
+            if (countdownElement) {
+                const interval = setInterval(function() {
+                    const now = new Date().getTime();
+                    const distance = auctionDate - now;
+
+                    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                    document.getElementById('days').innerText = days < 10 ? '0' + days : days;
+                    document.getElementById('hours').innerText = hours < 10 ? '0' + hours : hours;
+                    document.getElementById('minutes').innerText = minutes < 10 ? '0' + minutes : minutes;
+                    document.getElementById('seconds').innerText = seconds < 10 ? '0' + seconds : seconds;
+
+                    if (distance < 0) {
+                        clearInterval(interval);
+                        countdownElement.innerHTML = "拍卖已开始";
+                    }
+                }, 1000);
+            }
+
+            const priceData = {
+                labels: ['T-9', 'T-8', 'T-7', 'T-6', 'T-5', 'T-4', 'T-3', 'T-2', 'T-1', '今天'],
+                prices: [8.50, 8.45, 8.53, 8.79, 8.60, 8.80, 8.88, 8.69, 8.89, 9.05],
+                volumes: [25, 23.23, 30, 31.87, 28, 38.49, 35, 39, 42, 50],
+            };
+            
+            const supportLevel = 8.70;
+            const resistanceLevel = 9.10;
+
+            let priceChart = null;
+            function renderPriceChart() {
+                const ctx = document.getElementById('priceChart')?.getContext('2d');
+                if (!ctx) return;
+
+                const supportAnnotation = {
+                    type: 'line',
+                    yMin: supportLevel,
+                    yMax: supportLevel,
+                    borderColor: 'rgb(34, 197, 94)',
+                    borderWidth: 2,
+                    borderDash: [6, 6],
+                    label: {
+                        content: `支撑位 ${supportLevel}`,
+                        enabled: true,
+                        position: 'end',
+                        backgroundColor: 'rgba(34, 197, 94, 0.7)',
+                        font: { weight: 'bold' }
+                    }
+                };
+                const resistanceAnnotation = {
+                    type: 'line',
+                    yMin: resistanceLevel,
+                    yMax: resistanceLevel,
+                    borderColor: 'rgb(239, 68, 68)',
+                    borderWidth: 2,
+                    borderDash: [6, 6],
+                    label: {
+                        content: `阻力位 ${resistanceLevel}`,
+                        enabled: true,
+                        position: 'end',
+                        backgroundColor: 'rgba(239, 68, 68, 0.7)',
+                        font: { weight: 'bold' }
+                    }
+                };
+
+                const annotations = {};
+                if(document.getElementById('toggleSupport').dataset.visible === 'true') {
+                    annotations.support = supportAnnotation;
+                }
+                if(document.getElementById('toggleResistance').dataset.visible === 'true') {
+                    annotations.resistance = resistanceAnnotation;
+                }
+
+                if(priceChart) {
+                    priceChart.destroy();
+                }
+
+                priceChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: priceData.labels,
+                        datasets: [
+                            {
+                                label: '价格 (元)',
+                                data: priceData.prices,
+                                borderColor: 'rgb(79, 70, 229)',
+                                backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                                tension: 0.1,
+                                fill: true,
+                                yAxisID: 'y',
+                            },
+                            {
+                                label: '成交量 (万手)',
+                                data: priceData.volumes,
+                                backgroundColor: 'rgba(107, 114, 128, 0.3)',
+                                type: 'bar',
+                                yAxisID: 'y1',
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            mode: 'index',
+                            intersect: false,
+                        },
+                        scales: {
+                            y: {
+                                type: 'linear',
+                                display: true,
+                                position: 'left',
+                                title: { display: true, text: '价格 (元)' },
+                                grid: { drawOnChartArea: false }
+                            },
+                            y1: {
+                                type: 'linear',
+                                display: true,
+                                position: 'right',
+                                title: { display: true, text: '成交量 (万手)' },
+                                grid: { drawOnChartArea: false }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: true },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed.y !== null) {
+                                            label += context.parsed.y;
+                                            if(context.dataset.yAxisID === 'y') label += ' 元';
+                                            else label += ' 万手';
+                                        }
+                                        return label;
+                                    }
+                                }
+                            },
+                            annotation: {
+                                annotations: annotations
+                            }
+                        }
+                    }
+                });
+            }
+            
+            document.getElementById('toggleSupport').dataset.visible = 'false';
+            document.getElementById('toggleResistance').dataset.visible = 'false';
+
+            document.getElementById('toggleSupport')?.addEventListener('click', () => {
+                const btn = document.getElementById('toggleSupport');
+                btn.dataset.visible = btn.dataset.visible === 'true' ? 'false' : 'true';
+                renderPriceChart();
+            });
+
+            document.getElementById('toggleResistance')?.addEventListener('click', () => {
+                const btn = document.getElementById('toggleResistance');
+                btn.dataset.visible = btn.dataset.visible === 'true' ? 'false' : 'true';
+                renderPriceChart();
+            });
+
+            renderPriceChart();
+            
+            const lhbData = {
+                '2025-02-21': { '机构净买入': 17000, '游资净买入': 5000 },
+                '2025-02-25': { '机构净买入': 10600, '游资净买入': 8000 },
+                '2025-02-26': { '机构净买入': -2000, '游资净买入': 1206 },
+            };
+            let lhbChart = null;
+            function renderLhbChart(date) {
+                const ctx = document.getElementById('lhbChart')?.getContext('2d');
+                if(!ctx) return;
+                
+                const data = lhbData[date];
+
+                if (lhbChart) {
+                    lhbChart.destroy();
+                }
+
+                lhbChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(data),
+                        datasets: [{
+                            label: `净买入额 (万元) - ${date}`,
+                            data: Object.values(data),
+                            backgroundColor: [
+                                'rgba(59, 130, 246, 0.6)',
+                                'rgba(249, 115, 22, 0.6)',
+                            ],
+                            borderColor: [
+                                'rgba(59, 130, 246, 1)',
+                                'rgba(249, 115, 22, 1)',
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            x: {
+                                title: { display: true, text: '净买入额 (万元)' }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            document.querySelectorAll('.lhb-date-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    renderLhbChart(e.target.dataset.date);
+                });
+            });
+
+            renderLhbChart('2025-02-21');
+            
+            const rzData = {
+                labels: ['06-07', '06-10', '06-11', '06-12', '06-13', '06-14'],
+                balances: [22900, 22850, 22500, 22033.44, 21532.64, 21300],
+            };
+            const rzCtx = document.getElementById('rzChart')?.getContext('2d');
+            if(rzCtx) {
+                new Chart(rzCtx, {
+                    type: 'line',
+                    data: {
+                        labels: rzData.labels,
+                        datasets: [{
+                            label: '融资余额 (万元)',
+                            data: rzData.balances,
+                            borderColor: 'rgb(217, 70, 239)',
+                            backgroundColor: 'rgba(217, 70, 239, 0.1)',
+                            fill: true,
+                            tension: 0.1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                         scales: {
+                            y: {
+                                title: { display: true, text: '余额 (万元)' }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            const tabs = document.querySelectorAll('.tab-btn');
+            const contents = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const targetId = tab.id.replace('btn', 'content');
+                    
+                    tabs.forEach(t => {
+                        t.classList.remove('tab-active');
+                        t.classList.add('tab-inactive');
+                    });
+                    tab.classList.remove('tab-inactive');
+                    tab.classList.add('tab-active');
+
+                    contents.forEach(content => {
+                        if (content.id === targetId) {
+                            content.classList.remove('content-inactive');
+                            content.classList.add('content-active');
+                        } else {
+                            content.classList.remove('content-active');
+                            content.classList.add('content-inactive');
+                        }
+                    });
+                });
+            });
+
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>
