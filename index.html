@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>襄阳轴承(000678) 交互式日内交易分析仪表盘</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chosen Palette: Warm Neutrals -->
+    <!-- Application Structure Plan: A tab-based dashboard is chosen to structure the dense information for a trader. The default view is the 'Trading Dashboard' with actionable trade plans. Other tabs like 'Market Dynamics', 'Trend & Patterns', and 'Fundamental Snapshot' provide layered context, allowing users to drill down without being overwhelmed. This non-linear structure is superior to the report's linear flow for quick decision-making, separating immediate strategy from deeper analysis. -->
+    <!-- Visualization & Content Choices: 1. Key Levels (Goal: Inform) -> HTML Cards -> Quick reference. 2. Trade Scenarios (Goal: Inform) -> Interactive buttons -> Shows specific playbooks. 3. Ownership Change (Goal: Compare) -> Bar Chart (Chart.js) -> Visualizes 'ownership concentration' trend. 4. Key Players (Goal: Organize) -> HTML Table -> Profiles market participants. 5. Price Trend (Goal: Change) -> Line Chart (Chart.js) -> Shows recent performance. 6. VWAP Logic (Goal: Organize) -> Interactive Diagram (HTML/JS) -> Explains the core T+0 tactic visually. 7. Financials (Goal: Inform) -> Static HTML Table -> Provides stark fundamental context. All choices adhere to NO SVG/Mermaid. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif';
+        }
+        .tab-button {
+            transition: all 0.3s ease-in-out;
+        }
+        .tab-button.active {
+            border-bottom-width: 2px;
+            border-color: #4a5568; /* dark gray */
+            color: #1a202c; /* darker gray */
+            font-weight: 600;
+        }
+        .content-section {
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .scenario-btn.active {
+            background-color: #2c3e50;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+    </style>
+</head>
+<body class="bg-[#fdfbf7] text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8">
+        
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900">襄阳轴承 (000678)</h1>
+            <p class="text-lg text-gray-600 mt-2">交互式日内交易分析仪表盘</p>
+        </header>
+
+        <nav id="tab-nav" class="flex justify-center border-b border-gray-300 mb-8 space-x-4 md:space-x-8">
+            <button data-tab="dashboard" class="tab-button py-3 px-2 md:px-4 text-gray-600 active">交易仪表盘</button>
+            <button data-tab="dynamics" class="tab-button py-3 px-2 md:px-4 text-gray-600">市场博弈</button>
+            <button data-tab="patterns" class="tab-button py-3 px-2 md:px-4 text-gray-600">趋势与形态</button>
+            <button data-tab="fundamentals" class="tab-button py-3 px-2 md:px-4 text-gray-600">基本面透视</button>
+        </nav>
+
+        <main>
+            <div id="dashboard" class="content-section active">
+                <div class="text-center mb-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <h2 class="text-xl font-semibold text-yellow-800">核心交易逻辑</h2>
+                    <p class="mt-2 text-gray-700">
+                        本部分为您提供今日最核心的交易情报。下方展示了关键的价格博弈点位，以及针对不同开盘情景的T+0操作剧本。请牢记，在高波动性投机中，严格的风险管理是生存的第一法则。
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+                    <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                        <h3 class="text-lg font-semibold mb-4 text-center">关键支撑与阻力位</h3>
+                        <div class="space-y-3">
+                             <div class="p-3 bg-red-50 rounded-lg">
+                                <p class="font-bold text-red-700">主要阻力: 17.50 - 17.60 元</p>
+                                <p class="text-sm text-red-600">依据: 近期波段高点，获利盘兑现区</p>
+                            </div>
+                            <div class="p-3 bg-orange-50 rounded-lg">
+                                <p class="font-bold text-orange-700">枢轴点: 16.94 元</p>
+                                <p class="text-sm text-orange-600">依据: 前期涨停价，多空分水岭</p>
+                            </div>
+                            <div class="p-3 bg-green-50 rounded-lg">
+                                <p class="font-bold text-green-700">主要支撑: 16.17 - 16.21 元</p>
+                                <p class="text-sm text-green-600">依据: 日内VWAP与盘中低点，日内多头防线</p>
+                            </div>
+                            <div class="p-3 bg-teal-50 rounded-lg">
+                                <p class="font-bold text-teal-700">次要支撑: 15.16 - 15.40 元</p>
+                                <p class="text-sm text-teal-600">依据: 趋势最后防线，若跌破需严格止损</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                         <h3 class="text-lg font-semibold mb-4 text-center">风险管理铁律</h3>
+                         <div class="space-y-4">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 h-6 w-6 rounded-full bg-red-500 text-white flex items-center justify-center font-bold mr-3">1</div>
+                                <div>
+                                    <h4 class="font-bold">硬性止损</h4>
+                                    <p class="text-sm text-gray-600">基于关键技术位设置止损，而非固定百分比。一旦触及，无条件执行。</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 h-6 w-6 rounded-full bg-red-500 text-white flex items-center justify-center font-bold mr-3">2</div>
+                                <div>
+                                    <h4 class="font-bold">仓位控制</h4>
+                                    <p class="text-sm text-gray-600">T+0仓位仅使用总仓位的一部分（如1/3），严禁满仓操作，保留回旋余地。</p>
+                                </div>
+                            </div>
+                             <div class="flex items-start">
+                                <div class="flex-shrink-0 h-6 w-6 rounded-full bg-red-500 text-white flex items-center justify-center font-bold mr-3">3</div>
+                                <div>
+                                    <h4 class="font-bold">正确心态</h4>
+                                    <p class="text-sm text-gray-600">目标是降低成本或稳定套利，而非捕捉完美高低点。纪律高于一切。</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+                    <h3 class="text-xl font-semibold mb-6 text-center">今日“做T”交易剧本</h3>
+                    <div class="flex justify-center space-x-2 md:space-x-4 mb-6">
+                        <button class="scenario-btn p-2 px-4 rounded-full text-sm md:text-base transition duration-300 active" data-scenario="high">大幅高开 (>3%)</button>
+                        <button class="scenario-btn p-2 px-4 rounded-full text-sm md:text-base transition duration-300" data-scenario="flat">平开/小幅波动</button>
+                        <button class="scenario-btn p-2 px-4 rounded-full text-sm md:text-base transition duration-300" data-scenario="low">大幅低开 (>3%)</button>
+                    </div>
+                    <div id="scenario-details" class="p-4 bg-gray-50 rounded-lg min-h-[200px] transition duration-300">
+                        <!-- Scenario details will be injected here -->
+                    </div>
+                </div>
+
+            </div>
+
+            <div id="dynamics" class="content-section">
+                <div class="text-center mb-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <h2 class="text-xl font-semibold text-blue-800">谁在牌桌上？</h2>
+                    <p class="mt-2 text-gray-700">
+                        本部分揭示股价波动背后的玩家。通过可视化图表和龙虎榜数据，您可以清晰地看到筹码如何从分散走向集中，以及顶级游资、机构和散户大军在这场博弈中扮演的角色。理解交易对手是预判市场行为的关键。
+                    </p>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                    <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                        <h3 class="text-lg font-semibold mb-4 text-center">筹码结构演变：持续集中</h3>
+                        <p class="text-sm text-center text-gray-600 mb-4">股东户数持续减少，户均持股市值上升，表明筹码正在从散户向大户集中，这会加剧股价波动性。</p>
+                        <div class="chart-container">
+                            <canvas id="shareholderChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                        <h3 class="text-lg font-semibold mb-4 text-center">融资盘激增：高杠杆的博弈</h3>
+                        <p class="text-sm text-center text-gray-600 mb-4">融资余额爆炸性增长，为上涨提供了燃料，但也使股价结构异常脆弱，需警惕踩踏风险。</p>
+                         <div class="chart-container">
+                            <canvas id="marginChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                 <div class="mt-8 bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+                    <h3 class="text-xl font-semibold mb-4 text-center">龙虎榜席位解码：关键玩家画像</h3>
+                     <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">玩家类型</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">席位代表</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操盘风格推断</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">顶级游资</span></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">国信证券浙江互联网分公司</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">行情“点火者”，动向具风向标意义。</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">散户大军</span></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">东方财富拉萨“天团”</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">趋势放大器，通过T+0制造日内波动。</td>
+                                </tr>
+                                 <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">机构投资者</span></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">机构专用席位</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">内部分歧巨大，多空博弈激烈，是潜在不稳定因素。</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="patterns" class="content-section">
+                 <div class="text-center mb-8 p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <h2 class="text-xl font-semibold text-green-800">价格在说什么？</h2>
+                    <p class="mt-2 text-gray-700">
+                        本部分聚焦于K线形态与日内波动规律。通过多周期趋势图，您可以感受上涨动能。通过交互式分时图解析，您可以学习如何利用价格线与均价线（VWAP）的关系来把握高抛低吸的时机。
+                    </p>
+                </div>
+                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                     <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                        <h3 class="text-lg font-semibold mb-4 text-center">近期价格趋势：主升浪</h3>
+                        <p class="text-sm text-center text-gray-600 mb-4">股价处于强劲的主升浪中，回撤浅而快，呈现出典型的“下跌即买入”模式。5日均线是短期生命线。</p>
+                        <div class="chart-container">
+                            <canvas id="priceTrendChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                        <h3 class="text-lg font-semibold mb-4 text-center">分时图核心战法: VWAP均值回归</h3>
+                        <p class="text-sm text-center text-gray-600 mb-4">VWAP（黄线）是日内价值中枢。价格（白线）过度偏离VWAP后有回归需求，这是T+0套利的核心。点击下方按钮查看买卖信号图解。</p>
+                        <div id="vwap-diagram" class="relative h-48 bg-gray-100 rounded-lg p-4 flex items-center justify-center">
+                            <div class="absolute w-full h-px bg-yellow-400 top-1/2"></div>
+                            <div id="vwap-price-line" class="absolute w-full h-px bg-gray-700 top-1/3 transition-all duration-500"></div>
+                            <span class="absolute top-1/2 -mt-7 left-2 text-xs text-yellow-600">VWAP (均价线)</span>
+                            <span class="absolute top-1/3 -mt-7 left-2 text-xs text-gray-800">价格线</span>
+                            <div id="vwap-signal-text" class="text-center font-semibold text-lg text-gray-900"></div>
+                        </div>
+                        <div class="flex justify-center space-x-4 mt-4">
+                            <button id="vwap-buy" class="px-4 py-2 bg-green-500 text-white rounded-lg text-sm">买入信号</button>
+                             <button id="vwap-sell" class="px-4 py-2 bg-red-500 text-white rounded-lg text-sm">卖出信号</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="fundamentals" class="content-section">
+                <div class="text-center mb-8 p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <h2 class="text-xl font-semibold text-red-800">悬崖边的舞者：基本面警示</h2>
+                    <p class="mt-2 text-gray-700">
+                        本部分展示了襄阳轴承的财务状况。请注意，当前的股价飙升与公司的实际经营业绩严重背离。了解这一事实，能帮助您在投机博弈中保持清醒，认识到这场游戏的纯粹“击鼓传花”性质。
+                    </p>
+                </div>
+                 <div class="max-w-3xl mx-auto bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+                    <h3 class="text-xl font-semibold mb-6 text-center">财务状况：持续亏损</h3>
+                     <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                             <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">财务指标</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">数值</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">解读</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">净利润 (2024年)</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-red-600 font-bold">-3537万元</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">主营业务陷入困境</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">每股收益 (2025 Q1)</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-red-600 font-bold">-0.08元</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">持续亏损，股东回报为负</td>
+                                </tr>
+                                 <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">净资产收益率 (ROE)</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-red-600 font-bold">负值</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">盈利能力堪忧</td>
+                                </tr>
+                                 <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">市盈率 (PE-TTM)</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-bold">-- (不适用)</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">因亏损无法计算估值</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">历史现金分红</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-bold">从未</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">缺乏对股东的长期回报</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const tabs = document.querySelectorAll('.tab-button');
+            const contents = document.querySelectorAll('.content-section');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    contents.forEach(c => c.classList.remove('active'));
+
+                    tab.classList.add('active');
+                    document.getElementById(tab.dataset.tab).classList.add('active');
+                });
+            });
+
+            const scenarios = {
+                high: {
+                    title: '策略: 正T (先卖后买)',
+                    details: [
+                        '<strong>核心观察:</strong> 开盘后15分钟成交量能否支撑高开。',
+                        '<strong>具体操作:</strong> 若快速冲向主要阻力区(17.50-17.60)且量能不济，果断卖出。等待回调至当日VWAP或枢轴点16.94附近企稳后买回。',
+                        '<strong>风险点:</strong> 警惕“高开低走”。若迅速跌破开盘价，放弃回补计划。'
+                    ]
+                },
+                flat: {
+                    title: '策略: 等待机会，相机而动',
+                     details: [
+                        '<strong>核心观察:</strong> 重点观察股价围绕VWAP的运行状态。',
+                        '<strong>具体操作:</strong> 若股价在VWAP上方企稳，可试多，目标阻力位；若跌破VWAP向主要支撑区(16.17-16.21)回落，可在企稳后执行反T。',
+                        '<strong>风险点:</strong> 全天窄幅横盘，T+0空间有限，应保持耐心，减少交易。'
+                    ]
+                },
+                low: {
+                    title: '策略: 反T (先买后卖)',
+                     details: [
+                        '<strong>核心观察:</strong> 密切关注主要支撑区(16.17-16.21)的防守力度。',
+                        '<strong>具体操作:</strong> 若低开后下探至支撑区并出现止跌信号，是激进买点。反弹目标看至当日VWAP。',
+                        '<strong>风险点:</strong> “低开低走”引发踩踏。在支撑区买入必须设极窄止损。'
+                    ]
+                }
+            };
+            const scenarioDetailsContainer = document.getElementById('scenario-details');
+            const scenarioButtons = document.querySelectorAll('.scenario-btn');
+
+            function updateScenario(scenarioKey) {
+                const scenario = scenarios[scenarioKey];
+                scenarioDetailsContainer.innerHTML = `
+                    <h4 class="font-bold text-lg mb-2 text-center">${scenario.title}</h4>
+                    <ul class="space-y-2 text-sm text-gray-700">
+                        ${scenario.details.map(detail => `<li>${detail}</li>`).join('')}
+                    </ul>
+                `;
+                 scenarioButtons.forEach(btn => {
+                    btn.classList.remove('active');
+                    if (btn.dataset.scenario === scenarioKey) {
+                        btn.classList.add('active');
+                    }
+                });
+            }
+
+            scenarioButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    updateScenario(button.dataset.scenario);
+                });
+            });
+
+            updateScenario('high');
+
+            const shareholderCtx = document.getElementById('shareholderChart').getContext('2d');
+            new Chart(shareholderCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['4月30日', '5月20日', '5月30日', '6月10日'],
+                    datasets: [{
+                        label: '股东户数',
+                        data: [130075, 129063, 119063, 114203],
+                        backgroundColor: 'rgba(52, 152, 219, 0.6)',
+                        borderColor: 'rgba(52, 152, 219, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: false, ticks: { callback: function(value) { return value / 10000 + '万'; } } },
+                        x: { grid: { display: false } }
+                    },
+                    plugins: {
+                        title: { display: true, text: '股东户数变化趋势' },
+                        tooltip: { callbacks: { label: function(context) { return `户数: ${context.raw.toLocaleString()} 户`; } } }
+                    }
+                }
+            });
+            
+            const marginCtx = document.getElementById('marginChart').getContext('2d');
+            new Chart(marginCtx, {
+                type: 'line',
+                data: {
+                    labels: ['6月7日', '6月11日', '6月12日', '6月13日', '6月14日', '6月17日'],
+                    datasets: [{
+                        label: '融资余额 (亿元)',
+                        data: [1.58, 1.79, 1.75, 1.70, 1.65, 1.71],
+                        fill: true,
+                        backgroundColor: 'rgba(231, 76, 60, 0.2)',
+                        borderColor: 'rgba(231, 76, 60, 1)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: false },
+                        x: { grid: { display: false } }
+                    },
+                    plugins: {
+                        title: { display: true, text: '融资余额变化趋势' },
+                        tooltip: { callbacks: { label: function(context) { return `余额: ${context.raw} 亿元`; } } }
+                    }
+                }
+            });
+
+            const priceTrendCtx = document.getElementById('priceTrendChart').getContext('2d');
+            new Chart(priceTrendCtx, {
+                type: 'line',
+                data: {
+                    labels: ['6/10', '6/11', '6/12', '6/13', '6/14', '6/17', '6/18(前高)'],
+                    datasets: [{
+                        label: '收盘价 (元)',
+                        data: [15.22, 16.74, 16.30, 16.46, 17.20, 17.58, 17.58],
+                        borderColor: '#2ecc71',
+                        backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                        fill: true,
+                        tension: 0.2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: false, ticks: { callback: function(value) { return value.toFixed(2) + '元'; } } }
+                    },
+                    plugins: {
+                        title: { display: true, text: '近期股价走势' }
+                    }
+                }
+            });
+
+            const vwapPriceLine = document.getElementById('vwap-price-line');
+            const vwapSignalText = document.getElementById('vwap-signal-text');
+            document.getElementById('vwap-buy').addEventListener('click', () => {
+                vwapPriceLine.style.transform = 'translateY(30px) scaleX(0.8)';
+                vwapSignalText.innerHTML = '<span class="text-green-600">价格线低于VWAP<br>超卖，寻机买入</span>';
+            });
+            document.getElementById('vwap-sell').addEventListener('click', () => {
+                vwapPriceLine.style.transform = 'translateY(-30px) scaleX(1.2)';
+                vwapSignalText.innerHTML = '<span class="text-red-600">价格线高于VWAP<br>超买，寻机卖出</span>';
+            });
+            
+        });
+    </script>
+</body>
+</html>
