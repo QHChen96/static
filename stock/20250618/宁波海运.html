@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>宁波海运(600798) 交互式投资分析仪表盘</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chosen Palette: Calm Neutrals & Corporate Blue -->
+    <!-- Application Structure Plan: A tabbed dashboard design is employed to deconstruct the dense report into intuitive, thematic modules: 1) Investment Compass (Executive Summary), 2) Corporate X-Ray (Business Model), 3) Financial Health (Financials), 4) Market Navigator (Industry), and 5) Valuation Game (Market Position). This layered, non-linear structure empowers users to navigate from high-level conclusions (e.g., SWOT, final verdict) to the granular data supporting them, which is a more effective decision-making flow than the original report's linear narrative. A new interactive Day Trading Strategy module is added to the main Compass tab for actionable, real-time guidance. -->
+    <!-- Visualization & Content Choices: 1. Revenue/Profit Paradox (Goal: Compare) -> Dual-axis Line/Bar Chart (Chart.js). 2. Valuation Gap (Goal: Compare) -> Bar Chart (Chart.js). 3. SWOT Analysis (Goal: Organize) -> 4-quadrant HTML/CSS Grid. 4. Business Segments (Goal: Inform) -> Donut Chart (Chart.js). 5. Investment Strategy (Goal: Inform) -> Interactive HTML cards. 6. Day Trading (Goal: Inform/Strategize) -> Interactive buttons with dynamic text display -> Provides actionable T+0 plans based on market scenarios. All choices are implemented via Canvas or HTML/CSS, adhering to the NO SVG/Mermaid constraint. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif';
+            background-color: #f8f9fa;
+        }
+        .tab-button {
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+        }
+        .tab-button.active {
+            border-bottom-color: #0d6efd;
+            color: #0d6efd;
+            font-weight: 600;
+        }
+        .content-section {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        .content-section.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.1);
+        }
+        .scenario-btn.active {
+            background-color: #0d6efd;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+    <div class="container mx-auto p-4 md:p-6">
+        
+        <header class="text-center mb-6">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900">宁波海运 (600798)</h1>
+            <p class="text-lg text-gray-600 mt-2">交互式投资分析仪表盘</p>
+        </header>
+
+        <nav id="tab-nav" class="flex justify-center border-b border-gray-300 mb-8 sticky top-0 bg-white/80 backdrop-blur-sm z-10">
+            <button data-tab="compass" class="tab-button py-3 px-2 md:px-4 text-gray-600 active">投资罗盘</button>
+            <button data-tab="xray" class="tab-button py-3 px-2 md:px-4 text-gray-600">企业透视</button>
+            <button data-tab="health" class="tab-button py-3 px-2 md:px-4 text-gray-600">财务诊断</button>
+            <button data-tab="navigator" class="tab-button py-3 px-2 md:px-4 text-gray-600">市场航图</button>
+            <button data-tab="game" class="tab-button py-3 px-2 md:px-4 text-gray-600">估值博弈</button>
+        </nav>
+
+        <main>
+            <!-- Investment Compass -->
+            <div id="compass" class="content-section active">
+                <div class="text-center mb-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <h2 class="text-2xl font-semibold text-blue-800">核心投资论点：风暴中高价的“避风港”</h2>
+                    <p class="mt-2 text-gray-700 max-w-3xl mx-auto">
+                        本部分为您提供最高层级的决策概览。宁波海运呈现了一个深刻的悖论：其业务实质（国资背景、稳定货源）使其成为航运业风暴中的“避风港”，但其资本市场的估值却充满了投机泡沫，价格极高。投资决策的核心在于判断，是基本面引力最终战胜市场情绪，还是资产注入的预期会兑现。
+                    </p>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200 mb-8">
+                    <h3 class="text-xl font-semibold mb-6 text-center">今日“做T”策略推演</h3>
+                     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div class="md:col-span-1">
+                            <h4 class="font-bold text-lg text-center mb-4">关键博弈价位</h4>
+                             <div class="space-y-3">
+                                <div class="p-3 bg-red-50 rounded-lg">
+                                    <p class="font-bold text-red-700">主要阻力: 4.50 元</p>
+                                    <p class="text-sm text-red-600">依据: 近期波段高点</p>
+                                </div>
+                                <div class="p-3 bg-orange-50 rounded-lg">
+                                    <p class="font-bold text-orange-700">枢轴点: 4.38 元</p>
+                                    <p class="text-sm text-orange-600">依据: 多空博弈中枢</p>
+                                </div>
+                                <div class="p-3 bg-green-50 rounded-lg">
+                                    <p class="font-bold text-green-700">主要支撑: 4.25 元</p>
+                                    <p class="text-sm text-green-600">依据: 日内VWAP防线</p>
+                                </div>
+                                 <div class="p-3 bg-teal-50 rounded-lg">
+                                    <p class="font-bold text-teal-700">最终支撑: 4.15 元</p>
+                                    <p class="text-sm text-teal-600">依据: 趋势最后防线</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="md:col-span-2">
+                             <h4 class="font-bold text-lg text-center mb-4">情景应对剧本</h4>
+                             <div class="flex justify-center space-x-2 md:space-x-4 mb-4">
+                                <button class="scenario-btn p-2 px-4 rounded-full text-sm md:text-base transition duration-300 active" data-scenario="high">高开 (>2%)</button>
+                                <button class="scenario-btn p-2 px-4 rounded-full text-sm md:text-base transition duration-300" data-scenario="flat">平开/小幅波动</button>
+                                <button class="scenario-btn p-2 px-4 rounded-full text-sm md:text-base transition duration-300" data-scenario="low">低开 (>2%)</button>
+                            </div>
+                            <div id="t-strategy-details" class="p-4 bg-gray-50 rounded-lg min-h-[220px] transition duration-300">
+                                <!-- T+0 Strategy details will be injected here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white p-5 rounded-xl shadow-md text-center card-hover"><p class="text-sm text-gray-500">归母净利润 (2024)</p><p class="text-2xl font-bold text-red-600 mt-1">2,212 万</p><p class="text-sm font-semibold text-red-500">同比 -80.20%</p></div>
+                    <div class="bg-white p-5 rounded-xl shadow-md text-center card-hover"><p class="text-sm text-gray-500">营业收入 (2024)</p><p class="text-2xl font-bold text-green-600 mt-1">24.32 亿</p><p class="text-sm font-semibold text-green-500">同比 +7.31%</p></div>
+                    <div class="bg-white p-5 rounded-xl shadow-md text-center card-hover"><p class="text-sm text-gray-500">市盈率 (TTM)</p><p class="text-2xl font-bold text-orange-600 mt-1">20,151x</p><p class="text-sm text-gray-500">严重脱离基本面</p></div>
+                    <div class="bg-white p-5 rounded-xl shadow-md text-center card-hover"><p class="text-sm text-gray-500">经营现金流净额 (25Q1)</p><p class="text-2xl font-bold text-blue-600 mt-1">1.33 亿</p><p class="text-sm font-semibold text-blue-500">同比 +93.53%</p></div>
+                </div>
+
+                 <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+                    <h3 class="text-xl font-semibold mb-6 text-center">投资策略建议</h3>
+                    <div id="strategy-tabs" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="strategy-card p-6 rounded-lg border-2 border-red-500 bg-red-50 cursor-pointer" data-type="value"><h4 class="font-bold text-lg text-red-800">价值投资者</h4><p class="mt-2 text-red-700">明确回避或卖出。股价与内在价值存在巨大鸿沟，下行风险远大于上行空间。</p></div>
+                        <div class="strategy-card p-6 rounded-lg border-2 border-orange-500 bg-orange-50 cursor-pointer" data-type="momentum"><h4 class="font-bold text-lg text-orange-800">投机/动量交易者</h4><p class="mt-2 text-orange-700">高风险的短期交易工具。关键在于追踪市场情绪和资金流向，必须配备严格止损。</p></div>
+                        <div class="strategy-card p-6 rounded-lg border-2 border-blue-500 bg-blue-50 cursor-pointer" data-type="strategic"><h4 class="font-bold text-lg text-blue-800">长期战略投资者</h4><p class="mt-2 text-blue-700">基于“资产注入”的纯粹博弈。建议等待股价深度回调或重组信号明确后再考虑。</p></div>
+                    </div>
+                 </div>
+            </div>
+
+            <!-- Corporate X-Ray -->
+            <div id="xray" class="content-section">
+                <div class="text-center mb-8 p-4 bg-gray-100 border border-gray-200 rounded-lg"><h2 class="text-2xl font-semibold text-gray-800">双引擎模式与国资后盾</h2><p class="mt-2 text-gray-700 max-w-3xl mx-auto">宁波海运的独特性在于其“航运+基建”的双主业结构，以及与母公司“浙能集团”的战略共生关系。本部分将剖析这两大支柱如何共同塑造了公司的风险收益特征。</p></div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200"><h3 class="text-lg font-semibold mb-4 text-center">2024年营收构成</h3><div class="chart-container"><canvas id="revenueChart"></canvas></div></div>
+                    <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200 flex flex-col justify-center"><h3 class="text-lg font-semibold mb-4 text-center">与母公司“浙能集团”的战略协同</h3><div class="space-y-4"><div class="p-4 bg-blue-50 rounded-lg"><h4 class="font-bold text-blue-800">战略角色：能源物流保障</h4><p class="text-sm text-blue-700 mt-1">核心任务是为母公司下属电厂运输煤炭，构成了稳定的业务基本盘。</p></div><div class="p-4 bg-green-50 rounded-lg"><h4 class="font-bold text-green-800">财务支持：AAA信用背书</h4><p class="text-sm text-green-700 mt-1">母公司强大的AAA信用评级传导至公司，显著降低融资成本。</p></div><div class="p-4 bg-purple-50 rounded-lg"><h4 class="font-bold text-purple-800">未来机遇：资产注入预期</h4><p class="text-sm text-purple-700 mt-1">作为集团旗下核心上市平台，市场对其获得优质资产注入抱有强烈预期。</p></div></div></div>
+                </div>
+            </div>
+
+            <!-- Financial Health -->
+            <div id="health" class="content-section">
+                <div class="text-center mb-8 p-4 bg-red-50 border border-red-200 rounded-lg"><h2 class="text-2xl font-semibold text-red-800">财务异象：增长的悖论</h2><p class="mt-2 text-gray-700 max-w-3xl mx-auto">公司近期财报呈现出“增收不增利”和“账面亏损，现金充裕”两大核心矛盾，揭示了其盈利质量和资产效率的严峻挑战。</p></div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200"><h3 class="text-lg font-semibold mb-4 text-center">营收 vs. 净利润 (2023-2024)</h3><div class="chart-container"><canvas id="profitabilityChart"></canvas></div></div>
+                     <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200"><h3 class="text-lg font-semibold mb-4 text-center">净利润 vs. 经营现金流 (2025 Q1)</h3><div class="chart-container"><canvas id="cashflowChart"></canvas></div></div>
+                </div>
+            </div>
+
+            <!-- Market Navigator -->
+            <div id="navigator" class="content-section">
+                <div class="text-center mb-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg"><h2 class="text-2xl font-semibold text-yellow-800">航行于波涛汹涌的干散货市场</h2><p class="mt-2 text-gray-700 max-w-3xl mx-auto">公司的命运与全球干散货市场紧密相连。本部分将追踪BDI指数的脉搏，并对比行业权威机构对未来的预测，构建前瞻性的市场视图。</p></div>
+                <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200 mb-8"><h3 class="text-lg font-semibold mb-4 text-center">波罗的海干散货指数(BDI)近期走势</h3><div class="chart-container"><canvas id="bdiChart"></canvas></div></div>
+                 <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200"><h3 class="text-xl font-semibold mb-6 text-center">权威机构展望 (2025-2026)</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-8"><div class="p-6 rounded-lg bg-red-50 border-l-4 border-red-500"><h4 class="font-bold text-lg text-red-800">BIMCO: 悲观</h4><ul class="mt-2 list-disc list-inside space-y-1 text-red-700"><li>供需平衡将持续恶化</li><li>需求增长停滞 (0%-2%)</li><li>运力供给过剩 (2%-3%)</li><li>核心货种(煤、矿)需求萎缩</li></ul></div><div class="p-6 rounded-lg bg-green-50 border-l-4 border-green-500"><h4 class="font-bold text-lg text-green-800">Drewry: 谨慎乐观</h4><ul class="mt-2 list-disc list-inside space-y-1 text-green-700"><li>市场表现或优于预期</li><li>环保法规收紧有效运力</li><li>地缘政治导致船舶绕行</li><li>“绿色船舶”将享有溢价</li></ul></div></div></div>
+            </div>
+
+            <!-- Valuation Game -->
+            <div id="game" class="content-section">
+                <div class="text-center mb-8 p-4 bg-purple-50 border border-purple-200 rounded-lg"><h2 class="text-2xl font-semibold text-purple-800">估值之谜与市场博弈</h2><p class="mt-2 text-gray-700 max-w-3xl mx-auto">宁波海运的股价与其微薄的盈利能力完全脱钩，呈现出巨大的估值鸿沟。其背后是游资主导的短期投机，以及对母公司资产注入的强烈预期。</p></div>
+                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200"><h3 class="text-lg font-semibold mb-4 text-center">市盈率(P/E)估值对比</h3><div class="chart-container"><canvas id="peRatioChart"></canvas></div></div>
+                     <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200"><h3 class="text-lg font-semibold mb-4 text-center">市净率(P/B)估值对比</h3><div class="chart-container"><canvas id="pbRatioChart"></canvas></div></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Tab navigation
+            const tabs = document.querySelectorAll('.tab-button');
+            const sections = document.querySelectorAll('.content-section');
+            const tabNav = document.getElementById('tab-nav');
+
+            tabNav.addEventListener('click', (e) => {
+                if (e.target.tagName === 'BUTTON') {
+                    const targetTab = e.target.dataset.tab;
+                    
+                    tabs.forEach(tab => tab.classList.remove('active'));
+                    e.target.classList.add('active');
+                    
+                    sections.forEach(section => {
+                        section.classList.remove('active');
+                        if (section.id === targetTab) {
+                            section.classList.add('active');
+                            if (window.activeCharts[targetTab]) {
+                                window.activeCharts[targetTab]();
+                            }
+                        }
+                    });
+                }
+            });
+
+            // T+0 Strategy Logic
+            const tStrategyScenarios = {
+                high: {
+                    title: '策略: 正T (先卖后买)',
+                    details: [
+                        '<strong>核心观察:</strong> 关注开盘后股价能否在枢轴点 4.38 元上方稳住。',
+                        '<strong>具体操作:</strong> 若冲高至主要阻力 4.50 元附近出现滞涨，可卖出T仓。耐心等待股价回落至当日VWAP或 4.38 元附近企稳后买回。',
+                        '<strong>风险点:</strong> 警惕假突破后快速回落。若卖出后股价继续强势上攻，应放弃回补，避免追高。'
+                    ]
+                },
+                flat: {
+                    title: '策略: 等待机会，箱体操作',
+                     details: [
+                        '<strong>核心观察:</strong> 关注股价在 4.25 元至 4.50 元区间的运行方向。',
+                        '<strong>具体操作:</strong> 围绕VWAP进行高抛低吸。若股价回落至 4.25 元支撑区企稳，可买入T仓；若反弹至 4.50 元阻力区受阻，可卖出T仓。',
+                        '<strong>风险点:</strong> 盘中选择方向性突破，打破箱体。交易需设好止损。'
+                    ]
+                },
+                low: {
+                    title: '策略: 反T (先买后卖)',
+                     details: [
+                        '<strong>核心观察:</strong> 密切关注主要支撑 4.25 元的防守力度。',
+                        '<strong>具体操作:</strong> 若低开后下探至 4.25 元附近出现止跌信号，是较好的买点。反弹目标看至当日VWAP或枢轴点 4.38 元。',
+                        '<strong>风险点:</strong> “低开低走”跌破最终支撑 4.15 元，将引发恐慌盘，必须严格止损。'
+                    ]
+                }
+            };
+            const tStrategyContainer = document.getElementById('t-strategy-details');
+            const scenarioButtons = document.querySelectorAll('.scenario-btn');
+
+            function updateTStrategy(scenarioKey) {
+                const scenario = tStrategyScenarios[scenarioKey];
+                tStrategyContainer.innerHTML = `
+                    <h4 class="font-bold text-lg mb-2 text-center">${scenario.title}</h4>
+                    <ul class="space-y-2 text-sm text-gray-700 list-disc list-inside">
+                        ${scenario.details.map(detail => `<li>${detail}</li>`).join('')}
+                    </ul>
+                `;
+                 scenarioButtons.forEach(btn => {
+                    btn.classList.remove('active');
+                    if (btn.dataset.scenario === scenarioKey) {
+                        btn.classList.add('active');
+                    }
+                });
+            }
+
+            scenarioButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    updateTStrategy(button.dataset.scenario);
+                });
+            });
+            // Initial load for T+0 strategy
+            updateTStrategy('high');
+
+
+            const chartJsConfig = {
+                plugins: { legend: { position: 'top' }, tooltip: { backgroundColor: '#fff', titleColor: '#333', bodyColor: '#666', borderColor: '#ddd', borderWidth: 1 } },
+                responsive: true,
+                maintainAspectRatio: false
+            };
+
+            window.activeCharts = {};
+            let chartInstances = {};
+
+            function destroyChart(id) {
+                if (chartInstances[id]) {
+                    chartInstances[id].destroy();
+                    delete chartInstances[id];
+                }
+            }
+
+            // Charts
+            activeCharts.xray = () => {
+                destroyChart('revenueChart');
+                const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+                chartInstances['revenueChart'] = new Chart(revenueCtx, { type: 'doughnut', data: { labels: ['航运业务 (79.82%)', '高速公路业务 (20.01%)', '其他 (0.17%)'], datasets: [{ data: [19.42, 4.87, 0.03], backgroundColor: ['#0d6efd', '#198754', '#6c757d'], borderColor: '#fff', borderWidth: 2 }] }, options: chartJsConfig });
+            };
+
+            activeCharts.health = () => {
+                destroyChart('profitabilityChart');
+                const profitabilityCtx = document.getElementById('profitabilityChart').getContext('2d');
+                chartInstances['profitabilityChart'] = new Chart(profitabilityCtx, { type: 'bar', data: { labels: ['2023年', '2024年'], datasets: [ { label: '营业收入 (亿元)', data: [22.67, 24.32], backgroundColor: 'rgba(25, 135, 84, 0.6)', yAxisID: 'y' }, { label: '归母净利润 (亿元)', data: [1.12, 0.22], backgroundColor: 'rgba(220, 53, 69, 0.6)', yAxisID: 'y1' } ] }, options: {...chartJsConfig, scales: { y: { type: 'linear', display: true, position: 'left', title: {display: true, text: '收入 (亿元)'} }, y1: { type: 'linear', display: true, position: 'right', title: {display: true, text: '利润 (亿元)'}, grid: { drawOnChartArea: false } } }} });
+                destroyChart('cashflowChart');
+                const cashflowCtx = document.getElementById('cashflowChart').getContext('2d');
+                chartInstances['cashflowChart'] = new Chart(cashflowCtx, { type: 'bar', data: { labels: ['2025 Q1'], datasets: [ { label: '归母净利润 (万元)', data: [-4645], backgroundColor: 'rgba(220, 53, 69, 0.7)' }, { label: '经营现金流净额 (万元)', data: [13257], backgroundColor: 'rgba(13, 110, 253, 0.7)' } ] }, options: {...chartJsConfig, plugins: {...chartJsConfig.plugins, title: {display: true, text: '利润与现金流的巨大背离'}}} });
+            };
+
+            activeCharts.navigator = () => {
+                destroyChart('bdiChart');
+                const bdiCtx = document.getElementById('bdiChart').getContext('2d');
+                chartInstances['bdiChart'] = new Chart(bdiCtx, { type: 'line', data: { labels: ['3月', '4月', '5月', '6月初', '6月13日'], datasets: [{ label: 'BDI指数点位', data: [2400, 1700, 1900, 2100, 2200], borderColor: '#fd7e14', backgroundColor: 'rgba(253, 126, 20, 0.1)', fill: true, tension: 0.3 }] }, options: chartJsConfig });
+            };
+            
+            activeCharts.game = () => {
+                destroyChart('peRatioChart');
+                const peRatioCtx = document.getElementById('peRatioChart').getContext('2d');
+                chartInstances['peRatioChart'] = new Chart(peRatioCtx, { type: 'bar', data: { labels: ['宁波海运', '中远海控', '招商轮船'], datasets: [{ label: '市盈率 (TTM)', data: [20151, 4.59, 10.82], backgroundColor: ['#dc3545', '#198754', '#0d6efd'], }] }, options: { ...chartJsConfig, scales: { y: { type: 'logarithmic', title: {display: true, text: '市盈率（对数坐标）'} } }, plugins: {...chartJsConfig.plugins, title: {display: true, text: '注：宁波海运市盈率极高，使用对数坐标显示'}}} });
+                destroyChart('pbRatioChart');
+                const pbRatioCtx = document.getElementById('pbRatioChart').getContext('2d');
+                chartInstances['pbRatioChart'] = new Chart(pbRatioCtx, { type: 'bar', data: { labels: ['宁波海运', '中远海控', '招商轮船'], datasets: [{ label: '市净率 (PB)', data: [1.34, 1.02, 1.22], backgroundColor: ['#dc3545', '#198754', '#0d6efd'], }] }, options: { ...chartJsConfig, scales: { y: { beginAtZero: true } } } });
+            };
+            
+            // Initial load for default tab
+            if (document.querySelector('.tab-button.active').dataset.tab === 'compass') {
+                 // The T+0 strategy is already loaded by default
+            } else {
+                const initialTab = document.querySelector('.tab-button.active').dataset.tab;
+                if(window.activeCharts[initialTab]) window.activeCharts[initialTab]();
+            }
+        });
+    </script>
+</body>
+</html>
