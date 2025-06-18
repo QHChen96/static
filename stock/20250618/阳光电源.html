@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>阳光电源(300274.SZ) 交互式分析报告</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Analyst Calm -->
+    <!-- Application Structure Plan: The SPA is designed as a top-down, multi-section dashboard. It starts with a prominent header displaying the core conclusion and key metrics for immediate takeaway. Subsequent sections allow non-linear exploration: 1) An interactive price chart to visualize the technical context. 2) A 'Fundamentals vs. Sentiment' section using a two-column layout and interactive toggles to highlight the report's central thesis—the disconnect between strong performance and market fear. 3) A visual flowchart for industry trends to simplify complex narratives. 4) A clear, card-based final section for actionable strategies. This structure prioritizes user engagement and understanding by transforming a linear report into an exploratory tool. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Core conclusion & key market data -> Goal: Instant summary -> Viz: Large-font text & styled info cards -> Justification: High visibility for the most critical information.
+        - Report Info: Price history & key levels -> Goal: Show technical landscape -> Viz: Chart.js line chart -> Interaction: Buttons to toggle shaded support/resistance zones on the chart -> Justification: Provides clear visual context for price action relative to strategic zones.
+        - Report Info: Valuation vs. Peers -> Goal: Demonstrate undervaluation -> Viz: Chart.js bar chart -> Interaction: Part of a tabbed interface contrasting fundamentals and valuation -> Justification: Makes the valuation argument compelling and easy to compare.
+        - Report Info: Industry evolution & policy changes -> Goal: Explain macro drivers -> Viz: HTML/CSS vertical flowchart -> Interaction: Hover effects to highlight stages -> Justification: Turns dense text into an easy-to-follow visual narrative.
+        - Report Info: Actionable trading scenarios -> Goal: Provide clear guidance -> Viz: Icon-driven cards -> Justification: Scannable, easily digestible format for key trading decisions.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body { font-family: 'Noto Sans SC', sans-serif; background-color: #f8fafc; }
+        .chart-container { position: relative; width: 100%; max-width: 800px; margin-left: auto; margin-right: auto; height: 350px; max-height: 50vh; }
+        @media (min-width: 768px) { .chart-container { height: 450px; } }
+        .glassmorphism { background: rgba(255, 255, 255, 0.3); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.18); }
+        .active-nav { color: #2563eb; border-bottom: 2px solid #2563eb; }
+        .inactive-nav { color: #4b5563; border-bottom: 2px solid transparent; }
+        .tab-btn-active { background-color: #3b82f6; color: white; }
+        .tab-btn-inactive { background-color: #e5e7eb; color: #374151; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <header class="sticky top-0 z-50 w-full glassmorphism shadow-md">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-4">
+                    <h1 class="text-xl md:text-2xl font-bold text-blue-800">阳光电源 (300274.SZ)</h1>
+                </div>
+                <nav class="hidden md:flex space-x-6 text-sm font-medium">
+                    <a href="#summary" class="py-2 inactive-nav hover:text-blue-600 transition-colors duration-300">核心观点</a>
+                    <a href="#technicals" class="py-2 inactive-nav hover:text-blue-600 transition-colors duration-300">技术与价格</a>
+                    <a href="#fundamentals" class="py-2 inactive-nav hover:text-blue-600 transition-colors duration-300">基本面解析</a>
+                    <a href="#industry" class="py-2 inactive-nav hover:text-blue-600 transition-colors duration-300">行业格局</a>
+                    <a href="#strategy" class="py-2 inactive-nav hover:text-blue-600 transition-colors duration-300">操作策略</a>
+                </nav>
+                 <button id="mobile-menu-button" class="md:hidden p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100">
+                    <span class="w-6 h-0.5 bg-current block"></span>
+                    <span class="w-6 h-0.5 bg-current block mt-1.5"></span>
+                    <span class="w-6 h-0.5 bg-current block mt-1.5"></span>
+                </button>
+            </div>
+            <div id="mobile-menu" class="hidden md:hidden py-4">
+                <a href="#summary" class="block py-2 px-4 text-sm hover:bg-blue-50 rounded">核心观点</a>
+                <a href="#technicals" class="block py-2 px-4 text-sm hover:bg-blue-50 rounded">技术与价格</a>
+                <a href="#fundamentals" class="block py-2 px-4 text-sm hover:bg-blue-50 rounded">基本面解析</a>
+                <a href="#industry" class="block py-2 px-4 text-sm hover:bg-blue-50 rounded">行业格局</a>
+                <a href="#strategy" class="block py-2 px-4 text-sm hover:bg-blue-50 rounded">操作策略</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8 md:py-12">
+
+        <!-- Section 1: Core Summary -->
+        <section id="summary" class="mb-16 scroll-mt-20">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-2">核心摘要与今日关键操作结论</h2>
+                <p class="text-lg text-slate-600 max-w-3xl mx-auto">洞察公司基本面与市场情绪的核心矛盾，把握当前交易机会。</p>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                <div class="bg-white p-8 rounded-2xl shadow-lg border border-slate-200 text-center">
+                    <p class="text-lg text-slate-500 mb-2">核心操作建议</p>
+                    <h3 class="text-3xl md:text-4xl font-bold text-blue-600 mb-4">逢低谨慎布局</h3>
+                    <p class="text-slate-600 leading-relaxed">利用市场对储能行业竞争的过度担忧，在关键价值区域进行分批吸纳，是当前阶段的稳健选择。避免追高，耐心等待回调机会。</p>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="bg-white p-4 rounded-xl shadow-md border border-slate-100 text-center transition-transform hover:scale-105">
+                        <p class="text-sm text-slate-500">最新价</p>
+                        <p class="text-2xl font-bold text-green-600">¥64.42</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl shadow-md border border-slate-100 text-center transition-transform hover:scale-105">
+                        <p class="text-sm text-slate-500">市盈率 (TTM)</p>
+                        <p class="text-2xl font-bold text-slate-800">10.46</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl shadow-md border border-slate-100 text-center transition-transform hover:scale-105">
+                        <p class="text-sm text-slate-500">总市值</p>
+                        <p class="text-2xl font-bold text-slate-800">1335亿</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl shadow-md border border-slate-100 text-center transition-transform hover:scale-105">
+                        <p class="text-sm text-slate-500">成交额</p>
+                        <p class="text-2xl font-bold text-slate-800">11.67亿</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Technicals -->
+        <section id="technicals" class="mb-16 scroll-mt-20">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-2">技术面深度分析</h2>
+                <p class="text-lg text-slate-600">在价格波动中寻找支撑与阻力，解读市场博弈的信号。</p>
+            </div>
+            <div class="bg-white p-6 md:p-8 rounded-2xl shadow-xl border border-slate-200">
+                <div class="chart-container mx-auto">
+                    <canvas id="priceChart"></canvas>
+                </div>
+                <div class="flex justify-center flex-wrap gap-2 md:gap-4 mt-6">
+                    <button id="toggleSupportBtn" class="bg-green-100 text-green-800 text-sm font-semibold px-4 py-2 rounded-full hover:bg-green-200 transition">显示核心支撑区</button>
+                    <button id="toggleResistanceBtn" class="bg-red-100 text-red-800 text-sm font-semibold px-4 py-2 rounded-full hover:bg-red-200 transition">显示主要阻力区</button>
+                    <button id="resetZonesBtn" class="bg-slate-100 text-slate-800 text-sm font-semibold px-4 py-2 rounded-full hover:bg-slate-200 transition">重置区间</button>
+                </div>
+                 <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+                    <div><span class="font-bold text-slate-700">MACD:</span> <span class="text-green-600">金叉趋势</span></div>
+                    <div><span class="font-bold text-slate-700">RSI:</span> <span class="text-yellow-600">中性偏强</span></div>
+                    <div><span class="font-bold text-slate-700">布林带:</span> <span class="text-blue-600">开口向上</span></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Fundamentals vs Sentiment -->
+        <section id="fundamentals" class="mb-16 scroll-mt-20">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-2">基本面 与 市场情绪</h2>
+                <p class="text-lg text-slate-600">探讨公司强劲的内在价值与市场悲观预期之间的巨大鸿沟。</p>
+            </div>
+            
+            <div class="bg-white p-6 md:p-8 rounded-2xl shadow-xl border border-slate-200">
+                <div class="flex justify-center mb-8">
+                    <div class="flex space-x-1 bg-slate-200 p-1 rounded-xl">
+                        <button id="showFundamentalsBtn" class="tab-btn-active w-32 text-sm font-bold py-2 px-4 rounded-lg transition">卓越基本面</button>
+                        <button id="showValuationBtn" class="tab-btn-inactive w-32 text-sm font-bold py-2 px-4 rounded-lg transition">估值之谜</button>
+                    </div>
+                </div>
+
+                <div id="fundamentalsContent">
+                    <div class="grid md:grid-cols-3 gap-6 text-center">
+                        <div class="bg-blue-50 p-6 rounded-lg">
+                            <p class="text-4xl font-bold text-blue-600 mb-2">82.52%</p>
+                            <p class="font-semibold text-blue-800">Q1净利润同比增长</p>
+                        </div>
+                        <div class="bg-green-50 p-6 rounded-lg">
+                            <p class="text-4xl font-bold text-green-600 mb-2">37.5%</p>
+                            <p class="font-semibold text-green-800">储能系统毛利率</p>
+                        </div>
+                        <div class="bg-indigo-50 p-6 rounded-lg">
+                             <p class="text-4xl font-bold text-indigo-600 mb-2">40%</p>
+                            <p class="font-semibold text-indigo-800">研发人员占比</p>
+                        </div>
+                    </div>
+                     <p class="text-center mt-6 text-slate-600">公司的财务数据和创新能力表现优异，与当前疲软的股价形成鲜明对比。</p>
+                </div>
+
+                <div id="valuationContent" class="hidden">
+                    <div class="chart-container mx-auto h-[400px]">
+                         <canvas id="valuationChart"></canvas>
+                    </div>
+                    <p class="text-center mt-6 text-slate-600">阳光电源的市盈率远低于行业平均，PEG值小于1，显示其估值可能被市场严重低估。</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Section 4: Industry Landscape -->
+        <section id="industry" class="mb-16 scroll-mt-20">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-2">宏观与产业图景</h2>
+                <p class="text-lg text-slate-600">穿越行业逆风，把握政策顺风，看龙头企业如何巩固优势。</p>
+            </div>
+
+            <div class="relative mx-auto max-w-2xl">
+                <div class="absolute left-1/2 top-0 h-full w-0.5 bg-slate-300"></div>
+                
+                <div class="relative mb-12 flex items-center">
+                    <div class="w-1/2 pr-8 text-right">
+                        <div class="p-4 bg-white rounded-lg shadow-md border border-slate-200">
+                            <h4 class="font-bold text-red-600">行业逆风：残酷“内卷”</h4>
+                            <p class="text-sm text-slate-600">产能过剩导致价格战，多数企业承压。</p>
+                        </div>
+                    </div>
+                    <div class="absolute left-1/2 -translate-x-1/2 w-8 h-8 bg-red-500 rounded-full border-4 border-white flex items-center justify-center text-white font-bold z-10">1</div>
+                </div>
+                
+                <div class="relative mb-12 flex items-center">
+                    <div class="w-1/2"></div>
+                    <div class="w-1/2 pl-8 text-left">
+                        <div class="p-4 bg-white rounded-lg shadow-md border border-slate-200">
+                           <h4 class="font-bold text-yellow-600">格局分化：优胜劣汰</h4>
+                           <p class="text-sm text-slate-600">低端产能出清，技术龙头竞争优势凸显。</p>
+                        </div>
+                    </div>
+                    <div class="absolute left-1/2 -translate-x-1/2 w-8 h-8 bg-yellow-500 rounded-full border-4 border-white flex items-center justify-center text-white font-bold z-10">2</div>
+                </div>
+
+                <div class="relative flex items-center">
+                    <div class="w-1/2 pr-8 text-right">
+                        <div class="p-4 bg-white rounded-lg shadow-md border border-slate-200">
+                            <h4 class="font-bold text-green-600">政策顺风：需求创造</h4>
+                            <p class="text-sm text-slate-600">分布式新政强制要求“光伏+储能”，为高价值产品创造巨大市场。</p>
+                        </div>
+                    </div>
+                    <div class="absolute left-1/2 -translate-x-1/2 w-8 h-8 bg-green-500 rounded-full border-4 border-white flex items-center justify-center text-white font-bold z-10">3</div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- Section 5: Strategy -->
+        <section id="strategy" class="scroll-mt-20">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-2">综合操作策略与情景规划</h2>
+                <p class="text-lg text-slate-600">基于全面分析，制定清晰、可执行的交易计划。</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-blue-100 p-6 rounded-2xl border-2 border-blue-300 shadow-lg">
+                    <h4 class="font-bold text-xl text-blue-800 mb-3">🎯 主要策略</h4>
+                    <p class="text-blue-700"><strong>逢低谨慎布局。</strong>在股价回调至关键支撑位时，分批耐心吸纳。理想建仓区：<strong>¥55.81 - ¥58.94</strong>。</p>
+                </div>
+                <div class="bg-green-100 p-6 rounded-2xl border-2 border-green-300 shadow-lg">
+                    <h4 class="font-bold text-xl text-green-800 mb-3">📈 看涨情景</h4>
+                    <p class="text-green-700">若股价放量突破并站稳 <strong>~¥65</strong>，可能意味底部确认，可考虑加仓，目标位看至 <strong>¥70</strong> 上方。</p>
+                </div>
+                <div class="bg-yellow-100 p-6 rounded-2xl border-2 border-yellow-400 shadow-lg">
+                    <h4 class="font-bold text-xl text-yellow-800 mb-3">📉 看跌情景</h4>
+                    <p class="text-yellow-700">若股价跌破 <strong>~¥60.72</strong>，可能回踩核心支撑区。若核心区再被跌破，短期看涨逻辑失效。</p>
+                </div>
+                <div class="bg-red-100 p-6 rounded-2xl border-2 border-red-300 shadow-lg">
+                    <h4 class="font-bold text-xl text-red-800 mb-3">🛡️ 风险管理</h4>
+                    <p class="text-red-700">采用金字塔式建仓。中长线最终止损线参考年内低点 <strong>¥52.98</strong>。跌破应先行离场观望。</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+    
+    <footer class="bg-slate-800 text-white mt-16">
+        <div class="container mx-auto px-4 py-6 text-center text-sm text-slate-400">
+            <p>本报告内容仅为信息分享与分析，不构成任何投资建议。</p>
+            <p>投资有风险，入市需谨慎。数据来源请参考原始报告。</p>
+        </div>
+    </footer>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // Mobile menu toggle
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+            document.querySelectorAll('#mobile-menu a').forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileMenu.classList.add('hidden');
+                });
+            });
+
+            // Smooth scrolling and active nav state
+            const navLinks = document.querySelectorAll('header nav a');
+            const sections = document.querySelectorAll('main section');
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        navLinks.forEach(link => {
+                            link.classList.remove('active-nav');
+                            link.classList.add('inactive-nav');
+                            if (link.getAttribute('href').substring(1) === entry.target.id) {
+                                link.classList.add('active-nav');
+                                link.classList.remove('inactive-nav');
+                            }
+                        });
+                    }
+                });
+            }, { rootMargin: '-50% 0px -50% 0px' });
+
+            sections.forEach(section => {
+                observer.observe(section);
+                const navLink = document.querySelector(`header nav a[href="#${section.id}"]`);
+                if(navLink) {
+                    navLink.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        window.scrollTo({
+                            top: section.offsetTop - 64, // 64 is header height
+                            behavior: 'smooth'
+                        });
+                    });
+                }
+            });
+
+            // Tab functionality for Fundamentals section
+            const showFundamentalsBtn = document.getElementById('showFundamentalsBtn');
+            const showValuationBtn = document.getElementById('showValuationBtn');
+            const fundamentalsContent = document.getElementById('fundamentalsContent');
+            const valuationContent = document.getElementById('valuationContent');
+            
+            function switchTab(activeBtn, inactiveBtn, activeContent, inactiveContent) {
+                activeBtn.classList.add('tab-btn-active');
+                activeBtn.classList.remove('tab-btn-inactive');
+                inactiveBtn.classList.remove('tab-btn-active');
+                inactiveBtn.classList.add('tab-btn-inactive');
+                activeContent.classList.remove('hidden');
+                inactiveContent.classList.add('hidden');
+            }
+
+            showFundamentalsBtn.addEventListener('click', () => {
+                switchTab(showFundamentalsBtn, showValuationBtn, fundamentalsContent, valuationContent);
+            });
+
+            showValuationBtn.addEventListener('click', () => {
+                switchTab(showValuationBtn, showFundamentalsBtn, valuationContent, fundamentalsContent);
+                if (!window.valuationChartInstance) {
+                    renderValuationChart();
+                }
+            });
+
+            // Price Chart
+            const priceChartCtx = document.getElementById('priceChart').getContext('2d');
+            const priceLabels = ['Oct-24', 'Nov-24', 'Dec-24', 'Jan-25', 'Feb-25', 'Mar-25', 'Apr-25', 'May-25', 'Jun-25'];
+            const priceData = [95, 99.58, 92, 80, 68, 60, 55, 58, 64.42];
+
+            const chartConfig = {
+                type: 'line',
+                data: {
+                    labels: priceLabels,
+                    datasets: [{
+                        label: '股价 (元)',
+                        data: priceData,
+                        borderColor: 'rgba(59, 130, 246, 1)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 2,
+                        pointBackgroundColor: 'rgba(59, 130, 246, 1)',
+                        pointRadius: 4,
+                        tension: 0.3,
+                        fill: true,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            ticks: {
+                                callback: function(value) { return '¥' + value; }
+                            }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `价格: ¥${context.parsed.y.toFixed(2)}`;
+                                }
+                            }
+                        },
+                        annotation: {
+                           annotations: {}
+                        }
+                    }
+                }
+            };
+            
+            const priceChart = new Chart(priceChartCtx, chartConfig);
+            
+            // Chart annotation functions
+            const toggleSupportBtn = document.getElementById('toggleSupportBtn');
+            const toggleResistanceBtn = document.getElementById('toggleResistanceBtn');
+            const resetZonesBtn = document.getElementById('resetZonesBtn');
+
+            const supportZone = {
+                type: 'box',
+                yMin: 55.81,
+                yMax: 58.94,
+                backgroundColor: 'rgba(34, 197, 94, 0.15)',
+                borderColor: 'rgba(34, 197, 94, 0.3)',
+                borderWidth: 1,
+                borderDash: [6, 6],
+                label: {
+                    content: '核心价值支撑区',
+                    display: true,
+                    position: 'start',
+                    color: 'rgba(22, 101, 52, 1)',
+                    font: { size: 10 }
+                }
+            };
+            
+            const resistanceZone = {
+                type: 'box',
+                yMin: 65.85,
+                yMax: 70.00,
+                backgroundColor: 'rgba(239, 68, 68, 0.15)',
+                borderColor: 'rgba(239, 68, 68, 0.3)',
+                borderWidth: 1,
+                borderDash: [6, 6],
+                label: {
+                    content: '主要阻力区',
+                    display: true,
+                    position: 'start',
+                    color: 'rgba(153, 27, 27, 1)',
+                    font: { size: 10 }
+                }
+            };
+
+            toggleSupportBtn.addEventListener('click', () => {
+                priceChart.options.plugins.annotation.annotations.support = supportZone;
+                priceChart.update();
+            });
+
+            toggleResistanceBtn.addEventListener('click', () => {
+                priceChart.options.plugins.annotation.annotations.resistance = resistanceZone;
+                priceChart.update();
+            });
+            
+            resetZonesBtn.addEventListener('click', () => {
+                priceChart.options.plugins.annotation.annotations = {};
+                priceChart.update();
+            });
+
+
+            // Valuation Chart
+            function renderValuationChart() {
+                const valuationChartCtx = document.getElementById('valuationChart').getContext('2d');
+                window.valuationChartInstance = new Chart(valuationChartCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['阳光电源', '捷佳伟创', '奥特维', '德业股份', '行业平均'],
+                        datasets: [{
+                            label: '市盈率 (TTM)',
+                            data: [10.27, 6.17, 9.11, 15.11, 27.60],
+                            backgroundColor: [
+                                'rgba(59, 130, 246, 0.7)',
+                                'rgba(16, 185, 129, 0.7)',
+                                'rgba(16, 185, 129, 0.7)',
+                                'rgba(16, 185, 129, 0.7)',
+                                'rgba(249, 115, 22, 0.7)'
+                            ],
+                            borderColor: [
+                                'rgba(59, 130, 246, 1)',
+                                'rgba(16, 185, 129, 1)',
+                                'rgba(16, 185, 129, 1)',
+                                'rgba(16, 185, 129, 1)',
+                                'rgba(249, 115, 22, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        indexAxis: 'y',
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            title: {
+                                display: true,
+                                text: '市盈率(TTM)估值对比'
+                            }
+                        },
+                         scales: {
+                            x: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
