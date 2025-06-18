@@ -111,24 +111,12 @@
         </main>
 
         <!-- 快速访问 -->
-        <div class="mt-8 bg-white rounded-xl shadow-lg border border-gray-200 p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">🚀 快速访问</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <a href="stock/20250618/襄阳轴承.html" class="block p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200 hover:border-blue-300 transition-colors">
-                    <div class="flex items-center">
-                        <div class="p-2 bg-blue-100 rounded-lg">
-                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
-                            </svg>
-                        </div>
-                        <div class="ml-3">
-                            <p class="font-medium text-gray-900">襄阳轴承 (000678)</p>
-                            <p class="text-sm text-gray-600">2025-06-18</p>
-                        </div>
-                    </div>
-                </a>
-            </div>
-        </div>
+         <div class="mt-8 bg-white rounded-xl shadow-lg border border-gray-200 p-6">
+             <h3 class="text-lg font-semibold text-gray-900 mb-4">🚀 快速访问</h3>
+             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                 <!-- 快速访问内容将在这里动态生成 -->
+             </div>
+         </div>
 
         <footer class="text-center mt-12 text-gray-500">
             <p>&copy; 2025 股票分析报告归档系统 - 静态文件管理</p>
@@ -136,26 +124,33 @@
     </div>
 
     <script>
-        // 文件系统数据结构
-        const fileSystem = {
-            'stock': {
-                type: 'folder',
-                children: {
-                    '20250618': {
-                        type: 'folder',
-                        children: {
-                            '襄阳轴承.html': {
-                                type: 'file',
-                                path: 'stock/20250618/襄阳轴承.html',
-                                title: '襄阳轴承(000678) 交互式日内交易分析仪表盘',
-                                date: '2025-06-18',
-                                size: '约 15KB'
-                            }
-                        }
-                    }
+        // 文件系统数据结构 - 从JSON文件动态加载
+        let fileSystem = {};
+        
+        // 加载文件结构
+        async function loadFileSystem() {
+            try {
+                const response = await fetch('files.json');
+                if (!response.ok) {
+                    throw new Error('无法加载文件结构');
                 }
+                fileSystem = await response.json();
+                renderFileBrowser();
+                updateStats();
+                updateQuickAccess();
+            } catch (error) {
+                console.error('加载文件结构失败:', error);
+                document.getElementById('file-browser').innerHTML = `
+                    <div class="text-center py-12">
+                        <svg class="w-16 h-16 text-red-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <p class="text-red-500 font-medium">加载文件结构失败</p>
+                        <p class="text-gray-500 text-sm mt-2">请确保 files.json 文件存在且格式正确</p>
+                    </div>
+                `;
             }
-        };
+        }
 
         let currentPath = [];
 
@@ -293,31 +288,80 @@
         }
 
         // 统计文件和文件夹数量
-        function updateStats() {
-            let folderCount = 0;
-            let fileCount = 0;
+         function updateStats() {
+             let folderCount = 0;
+             let fileCount = 0;
 
-            function countItems(obj) {
-                for (const [name, item] of Object.entries(obj)) {
-                    if (item.type === 'folder') {
-                        folderCount++;
-                        countItems(item.children);
-                    } else if (item.type === 'file') {
-                        fileCount++;
-                    }
-                }
-            }
+             function countItems(obj) {
+                 for (const [name, item] of Object.entries(obj)) {
+                     if (item.type === 'folder') {
+                         folderCount++;
+                         countItems(item.children);
+                     } else if (item.type === 'file') {
+                         fileCount++;
+                     }
+                 }
+             }
 
-            countItems(fileSystem);
-            document.getElementById('folder-count').textContent = folderCount;
-            document.getElementById('file-count').textContent = fileCount;
-        }
+             countItems(fileSystem);
+             document.getElementById('folder-count').textContent = folderCount;
+             document.getElementById('file-count').textContent = fileCount;
+         }
+
+         // 动态更新快速访问区域
+         function updateQuickAccess() {
+             const quickAccessContainer = document.querySelector('.grid.grid-cols-1.md\\:grid-cols-2.lg\\:grid-cols-3.gap-4');
+             if (!quickAccessContainer) return;
+
+             let quickAccessHTML = '';
+             
+             // 递归查找所有文件
+             function findAllFiles(obj, basePath = '') {
+                 const files = [];
+                 for (const [name, item] of Object.entries(obj)) {
+                     if (item.type === 'file') {
+                         files.push({
+                             ...item,
+                             name: name
+                         });
+                     } else if (item.type === 'folder') {
+                         files.push(...findAllFiles(item.children, basePath + name + '/'));
+                     }
+                 }
+                 return files;
+             }
+
+             const allFiles = findAllFiles(fileSystem);
+             
+             // 为每个文件生成快速访问卡片
+             allFiles.forEach(file => {
+                 const stockCode = file.title.match(/\((\d+)\)/) ? file.title.match(/\((\d+)\)/)[1] : '';
+                 const stockName = file.title.split('(')[0].trim();
+                 
+                 quickAccessHTML += `
+                     <a href="${file.path}" class="block p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200 hover:border-blue-300 transition-colors">
+                         <div class="flex items-center">
+                             <div class="p-2 bg-blue-100 rounded-lg">
+                                 <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                                 </svg>
+                             </div>
+                             <div class="ml-3">
+                                 <p class="font-medium text-gray-900">${stockName} ${stockCode ? '(' + stockCode + ')' : ''}</p>
+                                 <p class="text-sm text-gray-600">${file.date || '未知日期'}</p>
+                             </div>
+                         </div>
+                     </a>
+                 `;
+             });
+
+             quickAccessContainer.innerHTML = quickAccessHTML;
+         }
 
         // 初始化
-        document.addEventListener('DOMContentLoaded', function() {
-            renderFileBrowser();
-            updateStats();
-        });
+         document.addEventListener('DOMContentLoaded', function() {
+             loadFileSystem();
+         });
     </script>
 </body>
 </html>
